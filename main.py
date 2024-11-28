@@ -1,6 +1,7 @@
 import os
 import re
 import requests
+from utils import get_response_codes
 
 RED = '\033[31m'
 ORANGE = '\033[33m'
@@ -79,25 +80,6 @@ def get_all_ip_addresses(logfilepath):
 
     return sorted_ips
 
-
-
-def get_response_codes(logfilepath):
-    response_code_pattern = r'(?<=\s)(\d{3})(?=\s)'
-    response_code_dictionary = {}
-
-    with open(logfilepath, 'r') as file:
-        for logfilepath in file:
-            found_response_codes = re.findall(response_code_pattern, logfilepath)
-
-            for response_code in found_response_codes:
-                if response_code in response_code_dictionary:
-                    response_code_dictionary[response_code] += 1
-                else:
-                    response_code_dictionary[response_code] = 1
-
-    for response_code, count in response_code_dictionary.items():
-        color = RED if count >= 800 else ORANGE if count >= 300 else GREEN if count >= 50 else RESET
-        print(color + f"{response_code} - appears {count} times." + RESET)
 
 def get_tools_used(logfilepath):
     tools_pattern = r'(?<=\()\w+'
