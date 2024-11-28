@@ -80,7 +80,6 @@ No additional requirements for the pre-built releases.
 
 ### Traffic Analysis
 - View peak traffic hours (24-hour format)
-- Analyze 15-minute interval peaks
 - Compare traffic across different periods:
   - Morning (6AM-11AM)
   - Afternoon (12PM-5PM)
