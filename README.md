@@ -18,7 +18,7 @@ A modern desktop application for analysing web server log files.
 git clone https://github.com/yourusername/log-analyser.git
 
 # Install dependencies
-pip install PySide6 requests
+pip install PySide6 requests keyring
 ```
 
 ## Features
@@ -45,6 +45,7 @@ If installing from source:
 - Python 3.x
 - PySide6
 - Requests
+- Keyring
 
 No additional requirements for the pre-built releases.
 
