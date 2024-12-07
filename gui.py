@@ -212,66 +212,62 @@ def upload_file(
 
 
 def generate_report(file_path):
-    with open("report.txt", "w") as report:
-        report.write("=== LOG ANALYSIS REPORT ===\n\n")
-
-        # Response Codes
-        report.write("RESPONSE CODES\n")
-        report.write("--------------\n")
-        response_codes = get_response_codes(file_path, full_report=True)
-        for code, count in sorted(
-            response_codes.items(), key=lambda x: x[1], reverse=True
-        ):
-            report.write(f"{code} - appears {count} times\n")
-        report.write("\n")
-
-        # IP Addresses
-        report.write("IP ADDRESSES\n")
-        report.write("------------\n")
-        ip_addresses = get_all_ip_addresses(file_path, full_report=True)
-        for ip, count in sorted(ip_addresses.items(), key=lambda x: x[1], reverse=True):
-            report.write(f"{ip} - appears {count} times\n")
-        report.write("\n")
-
-        # Requested Files
-        report.write("REQUESTED FILES\n")
-        report.write("---------------\n")
-        files = get_most_requested_files(file_path, full_report=True)
-        for (file, code), count in sorted(
-            files.items(), key=lambda x: x[1], reverse=True
-        ):
-            report.write(f"{file} - accessed {count} times with response code {code}\n")
-        report.write("\n")
-
-        # Tools Used
-        report.write("TOOLS USED\n")
-        report.write("----------\n")
-        tools = get_tools_used(file_path, full_report=True)
-        for tool, count in sorted(tools.items(), key=lambda x: x[1], reverse=True):
-            report.write(f"{tool} - used {count} times\n")
-
-    # Get IP data
+    # Get data for all sections
     ip_addresses = get_all_ip_addresses(file_path, full_report=True)
+    response_codes = get_response_codes(file_path, full_report=True)
+    requested_files = get_most_requested_files(file_path, full_report=True)
+    tools_used = get_tools_used(file_path, full_report=True)
+    traffic_data = get_peak_traffic_times(file_path, full_report=True)
     
     # Create stats.json with the counts
     stats = {
         "ip_count": len(ip_addresses),
         "request_count": sum(ip_addresses.values()),
-        "error_count": len(get_response_codes(file_path, full_report=True)),
-        "asset_count": len(get_most_requested_files(file_path, full_report=True)),
+        "error_count": len(response_codes),
+        "asset_count": len(requested_files),
         "report_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
     
     with open("stats.json", "w") as f:
         json.dump(stats, f)
     
-    # Create ips.json with IPs and their request counts
+    # Create ips.json
     ip_list = [{"ip": ip, "requests": count} for ip, count in ip_addresses.items()]
-    # Sort by request count in descending order
     ip_list.sort(key=lambda x: x["requests"], reverse=True)
-    
     with open("ips.json", "w") as f:
         json.dump(ip_list, f)
+    
+    # Create codes.json
+    codes_list = [{"code": code, "count": count} for code, count in response_codes.items()]
+    codes_list.sort(key=lambda x: x["count"], reverse=True)
+    with open("codes.json", "w") as f:
+        json.dump(codes_list, f)
+    
+    # Create files.json
+    files_list = [{"file": file, "code": code, "count": count} 
+                  for (file, code), count in requested_files.items()]
+    files_list.sort(key=lambda x: x["count"], reverse=True)
+    with open("files.json", "w") as f:
+        json.dump(files_list, f)
+    
+    # Create tools.json
+    tools_list = [{"tool": tool, "count": count} for tool, count in tools_used.items()]
+    tools_list.sort(key=lambda x: x["count"], reverse=True)
+    with open("tools.json", "w") as f:
+        json.dump(tools_list, f)
+    
+    # Create traffic.json
+    if isinstance(traffic_data, dict) and "detailed" in traffic_data:
+        # If traffic_data contains both detailed and hourly data
+        traffic_list = [{"time": time, "count": count} 
+                       for time, count in traffic_data["detailed"].items()]
+    else:
+        # If traffic_data is just a simple dictionary
+        traffic_list = [{"time": time, "count": count} 
+                       for time, count in traffic_data.items()]
+    traffic_list.sort(key=lambda x: x["count"], reverse=True)
+    with open("traffic.json", "w") as f:
+        json.dump(traffic_list, f)
 
 
 def analyse_log(window, text_label, scroll_area):

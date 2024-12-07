@@ -29,7 +29,6 @@
         <span id="report-date"></span>
     </h1>
 
-
     <section class="gap-4 mt-20">
         <h2 class="text-xl text-center font-bold mt-10">Overview</h2>
 
@@ -41,10 +40,9 @@
         </div>
     </section>
 
-    <section class="mt-20">
-        <h2 class="text-xl text-center font-bold">IPs</h2>
-
-        <div class="max-w-2xl mx-auto mt-4">
+    <div class="max-w-2xl mx-auto space-y-8 mt-20 px-4">
+        <!-- IPs Section -->
+        <section>
             <details class="bg-white/5 rounded-lg group">
                 <summary class="px-4 py-3 cursor-pointer duration-100 hover:bg-white/10">
                     <div class="inline-flex items-center gap-1">
@@ -54,82 +52,292 @@
                         View All IPs
                     </div>
                 </summary>
-                <div id="ip-list" class="px-4 py-2 space-y-1 text-sm text-gray-300 overflow-hidden transition-[max-height] duration-500 ease-in-out"></div>
+                <div class="px-4 py-2 border-b border-white/10">
+                    <div class="grid grid-cols-2 text-sm font-semibold text-gray-400">
+                        <div>IP Address</div>
+                        <div class="text-right">Requests</div>
+                    </div>
+                </div>
+                <div id="ip-list" class="px-4 py-2 space-y-1 text-sm text-gray-300"></div>
                 <div class="px-4 py-3 text-center">
-                    <button id="load-more" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded text-sm hidden transition-colors duration-200">
+                    <button id="load-more-ips" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded text-sm hidden transition-colors duration-200">
                         Load More IPs
                     </button>
                 </div>
             </details>
-        </div>
-    </section>
+        </section>
+
+        <!-- Response Codes Section -->
+        <section>
+            <details class="bg-white/5 rounded-lg group">
+                <summary class="px-4 py-3 cursor-pointer duration-100 hover:bg-white/10">
+                    <div class="inline-flex items-center gap-1">
+                        <svg class="w-4 h-4 -ml-1 rotate-0 transform duration-200 group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        View Response Codes
+                    </div>
+                </summary>
+                <div class="px-4 py-2 border-b border-white/10">
+                    <div class="grid grid-cols-2 text-sm font-semibold text-gray-400">
+                        <div>Response Code</div>
+                        <div class="text-right">Occurrences</div>
+                    </div>
+                </div>
+                <div id="codes-list" class="px-4 py-2 space-y-1 text-sm text-gray-300"></div>
+                <div class="px-4 py-3 text-center">
+                    <button id="load-more-codes" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded text-sm hidden transition-colors duration-200">
+                        Load More Codes
+                    </button>
+                </div>
+            </details>
+        </section>
+
+        <!-- Requested Files Section -->
+        <section>
+            <details class="bg-white/5 rounded-lg group">
+                <summary class="px-4 py-3 cursor-pointer duration-100 hover:bg-white/10">
+                    <div class="inline-flex items-center gap-1">
+                        <svg class="w-4 h-4 -ml-1 rotate-0 transform duration-200 group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        View Requested Files
+                    </div>
+                </summary>
+                <div class="px-4 py-2 border-b border-white/10">
+                    <div class="grid grid-cols-3 text-sm font-semibold text-gray-400">
+                        <div class="col-span-2">File Path</div>
+                        <div class="text-right">Requests</div>
+                    </div>
+                </div>
+                <div id="files-list" class="px-4 py-2 space-y-1 text-sm text-gray-300"></div>
+                <div class="px-4 py-3 text-center">
+                    <button id="load-more-files" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded text-sm hidden transition-colors duration-200">
+                        Load More Files
+                    </button>
+                </div>
+            </details>
+        </section>
+
+        <!-- Tools Section -->
+        <section>
+            <details class="bg-white/5 rounded-lg group">
+                <summary class="px-4 py-3 cursor-pointer duration-100 hover:bg-white/10">
+                    <div class="inline-flex items-center gap-1">
+                        <svg class="w-4 h-4 -ml-1 rotate-0 transform duration-200 group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        View Tools
+                    </div>
+                </summary>
+                <div class="px-4 py-2 border-b border-white/10">
+                    <div class="grid grid-cols-2 text-sm font-semibold text-gray-400">
+                        <div>Tool Name</div>
+                        <div class="text-right">Uses</div>
+                    </div>
+                </div>
+                <div id="tools-list" class="px-4 py-2 space-y-1 text-sm text-gray-300"></div>
+                <div class="px-4 py-3 text-center">
+                    <button id="load-more-tools" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded text-sm hidden transition-colors duration-200">
+                        Load More Tools
+                    </button>
+                </div>
+            </details>
+        </section>
+
+        <!-- Traffic Analysis Section -->
+        <section class="mb-20">
+            <details class="bg-white/5 rounded-lg group">
+                <summary class="px-4 py-3 cursor-pointer duration-100 hover:bg-white/10">
+                    <div class="inline-flex items-center gap-1">
+                        <svg class="w-4 h-4 -ml-1 rotate-0 transform duration-200 group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        View Traffic Analysis
+                    </div>
+                </summary>
+                <div class="px-4 py-2 border-b border-white/10">
+                    <div class="grid grid-cols-2 text-sm font-semibold text-gray-400">
+                        <div>Time Period</div>
+                        <div class="text-right">Request Count</div>
+                    </div>
+                </div>
+                <div id="traffic-list" class="px-4 py-2 space-y-1 text-sm text-gray-300"></div>
+                <div class="px-4 py-3 text-center">
+                    <button id="load-more-traffic" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded text-sm hidden transition-colors duration-200">
+                        Load More Traffic Data
+                    </button>
+                </div>
+            </details>
+        </section>
+    </div>
+
+    <script>
+        const ipCount = document.getElementById('ip-count');
+        const requestCount = document.getElementById('request-count');
+        const errorCount = document.getElementById('error-count');
+        const timeCount = document.getElementById('time-count');
+        const reportDate = document.getElementById('report-date');
+
+        const ipList = document.getElementById('ip-list');
+        const codesList = document.getElementById('codes-list');
+        const filesList = document.getElementById('files-list');
+        const toolsList = document.getElementById('tools-list');
+        const trafficList = document.getElementById('traffic-list');
+
+        const loadMoreIPs = document.getElementById('load-more-ips');
+        const loadMoreCodes = document.getElementById('load-more-codes');
+        const loadMoreFiles = document.getElementById('load-more-files');
+        const loadMoreTools = document.getElementById('load-more-tools');
+        const loadMoreTraffic = document.getElementById('load-more-traffic');
+        
+        const ITEMS_PER_PAGE = 100;
+        let currentData = {
+            ips: { items: [], index: 0 },
+            codes: { items: [], index: 0 },
+            files: { items: [], index: 0 },
+            tools: { items: [], index: 0 },
+            traffic: { items: [], index: 0 }
+        };
+
+        function loadMoreItems(type, list, button) {
+            const data = currentData[type];
+            const endIndex = Math.min(data.index + ITEMS_PER_PAGE, data.items.length);
+            
+            for (let i = data.index; i < endIndex; i++) {
+                const item = data.items[i];
+                const entry = document.createElement('div');
+                entry.className = 'py-1 grid';
+                
+                switch(type) {
+                    case 'ips':
+                        entry.className += ' grid-cols-2';
+                        entry.innerHTML = `
+                            <div>${item.ip}</div>
+                            <div class="text-right">${item.requests}</div>
+                        `;
+                        break;
+                    case 'codes':
+                        entry.className += ' grid-cols-2';
+                        entry.innerHTML = `
+                            <div>${item.code}</div>
+                            <div class="text-right">${item.count}</div>
+                        `;
+                        break;
+                    case 'files':
+                        entry.className += ' grid-cols-3';
+                        entry.innerHTML = `
+                            <div class="col-span-2">${item.file}</div>
+                            <div class="text-right">${item.count}</div>
+                        `;
+                        break;
+                    case 'tools':
+                        entry.className += ' grid-cols-2';
+                        entry.innerHTML = `
+                            <div>${item.tool}</div>
+                            <div class="text-right">${item.count}</div>
+                        `;
+                        break;
+                    case 'traffic':
+                        entry.className += ' grid-cols-2';
+                        entry.innerHTML = `
+                            <div>${item.time}</div>
+                            <div class="text-right">${item.count}</div>
+                        `;
+                        break;
+                }
+                
+                list.appendChild(entry);
+            }
+            
+            data.index = endIndex;
+            
+            if (data.index >= data.items.length) {
+                button.classList.add('hidden');
+            }
+        }
+
+        // Load stats
+        fetch('stats.json')
+            .then(response => response.json())
+            .then(stats => {
+                ipCount.innerText = stats.ip_count;
+                requestCount.innerText = stats.request_count;
+                errorCount.innerText = stats.error_count;
+                timeCount.innerText = stats.asset_count;
+                reportDate.innerText = stats.report_date;
+            })
+            .catch(error => {
+                console.error('Error loading stats:', error);
+                ipCount.innerText = '0';
+                requestCount.innerText = '0';
+                errorCount.innerText = '0';
+                timeCount.innerText = '0';
+                reportDate.innerText = 'N/A';
+            });
+
+        // Load IPs
+        fetch('ips.json')
+            .then(response => response.json())
+            .then(data => {
+                currentData.ips.items = data;
+                loadMoreItems('ips', ipList, loadMoreIPs);
+                if (data.length > ITEMS_PER_PAGE) {
+                    loadMoreIPs.classList.remove('hidden');
+                }
+            });
+
+        // Load Response Codes
+        fetch('codes.json')
+            .then(response => response.json())
+            .then(data => {
+                currentData.codes.items = data;
+                loadMoreItems('codes', codesList, loadMoreCodes);
+                if (data.length > ITEMS_PER_PAGE) {
+                    loadMoreCodes.classList.remove('hidden');
+                }
+            });
+
+        // Load Files
+        fetch('files.json')
+            .then(response => response.json())
+            .then(data => {
+                currentData.files.items = data;
+                loadMoreItems('files', filesList, loadMoreFiles);
+                if (data.length > ITEMS_PER_PAGE) {
+                    loadMoreFiles.classList.remove('hidden');
+                }
+            });
+
+        // Load Tools
+        fetch('tools.json')
+            .then(response => response.json())
+            .then(data => {
+                currentData.tools.items = data;
+                loadMoreItems('tools', toolsList, loadMoreTools);
+                if (data.length > ITEMS_PER_PAGE) {
+                    loadMoreTools.classList.remove('hidden');
+                }
+            });
+
+        // Load Traffic
+        fetch('traffic.json')
+            .then(response => response.json())
+            .then(data => {
+                currentData.traffic.items = data;
+                loadMoreItems('traffic', trafficList, loadMoreTraffic);
+                if (data.length > ITEMS_PER_PAGE) {
+                    loadMoreTraffic.classList.remove('hidden');
+                }
+            });
+
+        // Add event listeners
+        loadMoreIPs.addEventListener('click', () => loadMoreItems('ips', ipList, loadMoreIPs));
+        loadMoreCodes.addEventListener('click', () => loadMoreItems('codes', codesList, loadMoreCodes));
+        loadMoreFiles.addEventListener('click', () => loadMoreItems('files', filesList, loadMoreFiles));
+        loadMoreTools.addEventListener('click', () => loadMoreItems('tools', toolsList, loadMoreTools));
+        loadMoreTraffic.addEventListener('click', () => loadMoreItems('traffic', trafficList, loadMoreTraffic));
+    </script>
 </body>
 
 </html>
-
-<script>
-    const ipCount = document.getElementById('ip-count');
-    const requestCount = document.getElementById('request-count');
-    const errorCount = document.getElementById('error-count');
-    const timeCount = document.getElementById('time-count');
-    const reportDate = document.getElementById('report-date');
-
-    const ipList = document.getElementById('ip-list');
-    const loadMoreButton = document.getElementById('load-more');
-    
-    let allIPs = [];
-    let currentIndex = 0;
-    const IPS_PER_PAGE = 100;
-
-    fetch('stats.json')
-        .then(response => response.json())
-        .then(stats => {
-            ipCount.innerText = stats.ip_count;
-            requestCount.innerText = stats.request_count;
-            errorCount.innerText = stats.error_count;
-            timeCount.innerText = stats.asset_count;
-            reportDate.innerText = stats.report_date;
-        })
-        .catch(error => {
-            console.error('Error loading stats:', error);
-
-            ipCount.innerText = '0';
-            requestCount.innerText = '0';
-            errorCount.innerText = '0';
-            timeCount.innerText = '0';
-            reportDate.innerText = 'N/A';
-        });
-
-    function loadMoreIPs() {
-        const endIndex = Math.min(currentIndex + IPS_PER_PAGE, allIPs.length);
-        
-        for (let i = currentIndex; i < endIndex; i++) {
-            const {ip, requests} = allIPs[i];
-            const ipEntry = document.createElement('div');
-            ipEntry.className = 'py-1';
-            ipEntry.innerText = `${ip} - ${requests} requests`;
-            ipList.appendChild(ipEntry);
-        }
-        
-        currentIndex = endIndex;
-        
-        // Hide button if we've loaded all IPs
-        if (currentIndex >= allIPs.length) {
-            loadMoreButton.classList.add('hidden');
-        }
-    }
-
-    fetch('ips.json')
-        .then(response => response.json())
-        .then(ips => {
-            allIPs = ips;
-            loadMoreIPs();
-            
-            // Show the load more button if there are more IPs
-            if (allIPs.length > IPS_PER_PAGE) {
-                loadMoreButton.classList.remove('hidden');
-            }
-        });
-
-    loadMoreButton.addEventListener('click', loadMoreIPs);
-</script>
