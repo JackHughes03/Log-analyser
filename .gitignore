@@ -172,3 +172,5 @@ cython_debug/
 
 # Exclude myenv folder
 myenv
+
+*.json
