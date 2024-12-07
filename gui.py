@@ -19,16 +19,10 @@ import re
 import time
 import keyring
 import getpass
-
-# Colours
-THEME_PRIMARY = "#3b82f6"  # Brighter blue
-THEME_SECONDARY = "#1d4ed8"  # Richer dark blue
-THEME_BACKGROUND = "#0f172a"  # Dark navy
-THEME_PANEL = "#1e293b"  # Lighter navy
-THEME_TEXT = "#f8fafc"  # Off white
-THEME_SUCCESS = "#22c55e"  # Brighter green
-THEME_ERROR = "#ef4444"  # Brighter red
-THEME_WARNING = "#f59e0b"  # Brighter orange
+import json
+from datetime import datetime
+# Import styles
+from styles import *
 
 # Functions to analyse log files
 from utils import (
@@ -60,8 +54,8 @@ def create_app():
 def create_window():
     window = QWidget()
     window.setWindowTitle("Log Analyser")
-    window.setStyleSheet(f"background-color: {THEME_BACKGROUND};")
-    window.resize(800, 600)  # Slightly larger window
+    window.setStyleSheet(WINDOW_STYLE)
+    window.resize(800, 600)
     return window
 
 
@@ -74,55 +68,23 @@ def create_layout():
 
 def create_heading():
     heading_container = QVBoxLayout()
-    heading_container.setSpacing(8)  # Space between title and description
+    heading_container.setSpacing(8)
 
-    # Create title
     heading = QLabel("Log Analyser")
-    heading.setStyleSheet(
-        f"""
-        QLabel {{
-            font-size: 32px;
-            font-weight: bold;
-            color: {THEME_TEXT};
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }}
-    """
-    )
+    heading.setStyleSheet(HEADING_STYLE)
     heading.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-    # Create description
     description = QLabel(
         "A modern tool for analysing web server logs with real-time visualisation."
     )
-    description.setStyleSheet(
-        f"""
-        QLabel {{
-            font-size: 14px;
-            color: {THEME_TEXT}aa;  # Added transparency to the text
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin-bottom: 20px;
-        }}
-    """
-    )
+    description.setStyleSheet(DESCRIPTION_STYLE)
     description.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-    # Create uploaded file label
     global uploaded_file_label
     uploaded_file_label = QLabel("No file uploaded")
-    uploaded_file_label.setStyleSheet(
-        f"""
-        QLabel {{
-            color: {THEME_TEXT}aa;
-            font-size: 14px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin-bottom: 10px;
-            margin-left: -3px;
-        }}
-    """
-    )
+    uploaded_file_label.setStyleSheet(UPLOADED_FILE_LABEL_STYLE)
     uploaded_file_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-    # Add to container
     heading_container_widget = QWidget()
     heading_container_widget.setLayout(heading_container)
     heading_container.addWidget(heading)
@@ -134,48 +96,13 @@ def create_heading():
 
 def create_dark_panel():
     dark_panel = QFrame()
-    dark_panel.setStyleSheet(
-        f"""
-        QFrame {{
-            background-color: {THEME_PANEL};
-            border-radius: 15px;
-            margin: 5px;
-        }}
-    """
-    )
-    dark_panel.setFixedSize(700, 450)  # Slightly larger panel
+    dark_panel.setStyleSheet(DARK_PANEL_STYLE)
+    dark_panel.setFixedSize(700, 450)
     panel_layout = QVBoxLayout()
     dark_panel.setLayout(panel_layout)
 
     scroll_area = QScrollArea()
-    scroll_area.setStyleSheet(
-        """
-        QScrollArea {
-            border: none;
-            background-color: transparent;
-        }
-        QScrollBar:vertical {
-            border: none;
-            background-color: #444444;
-            width: 10px;
-            margin: 0;
-        }
-        QScrollBar::handle:vertical {
-            background-color: #666666;
-            min-height: 20px;
-            border-radius: 5px;
-        }
-        QScrollBar::handle:vertical:hover {
-            background-color: #888888;
-        }
-        QScrollBar::add-line:vertical {
-            height: 0px;
-        }
-        QScrollBar::sub-line:vertical {
-            height: 0px;
-        }
-    """
-    )
+    scroll_area.setStyleSheet(SCROLL_AREA_STYLE)
     scroll_area.setWidgetResizable(True)
     scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
@@ -191,19 +118,7 @@ def create_dark_panel():
 
 def create_text_label():
     text_label = QLabel()
-    text_label.setStyleSheet(
-        f"""
-        QLabel {{ 
-            color: {THEME_TEXT};
-            padding: 15px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.6;
-            background-color: {THEME_PANEL};
-            border-radius: 8px;
-        }}
-    """
-    )
+    text_label.setStyleSheet(TEXT_LABEL_STYLE)
     text_label.setAlignment(Qt.AlignmentFlag.AlignTop)
     text_label.setWordWrap(True)
     text_label.setTextFormat(Qt.TextFormat.RichText)  # Ensure HTML is rendered
@@ -211,61 +126,7 @@ def create_text_label():
 
 
 def create_button_styles():
-    button_style_base = f"""
-        QPushButton {{
-            color: {THEME_TEXT};
-            border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            margin: 10px;
-            min-width: 150px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }}
-        QPushButton:hover {{
-            opacity: 0.9;
-        }}
-    """
-    button_style_primary = (
-        button_style_base
-        + f"""
-        QPushButton {{
-            background-color: {THEME_PRIMARY};
-        }}
-        QPushButton:hover {{
-            background-color: {THEME_SECONDARY};
-        }}
-    """
-    )
-    button_style_success = (
-        button_style_base
-        + f"""
-        QPushButton {{
-            background-color: {THEME_SUCCESS};
-        }}
-        QPushButton:hover {{
-            background-color: #047857;
-        }}
-    """
-    )
-    button_style_disabled = (
-        button_style_base
-        + """
-        QPushButton {
-            background-color: #475569;
-            color: #94a3b8;
-        }
-        QPushButton:disabled {
-            background-color: #475569;
-            color: #94a3b8;
-        }
-        QPushButton:hover {
-            background-color: #475569;
-        }
-    """
-    )
-    return button_style_primary, button_style_success, button_style_disabled
+    return BUTTON_STYLE_PRIMARY, BUTTON_STYLE_SUCCESS, BUTTON_STYLE_DISABLED
 
 
 def create_buttons(
@@ -335,11 +196,6 @@ def upload_file(
     )
     if file_path:
         token = get_api_token()
-        if not token:
-            set_text_with_color(
-                text_label, "Please enter an API token", "#ff0000", scroll_area
-            )
-            return
 
         filename = Path(file_path).name
         set_text_with_color(
@@ -393,6 +249,29 @@ def generate_report(file_path):
         tools = get_tools_used(file_path, full_report=True)
         for tool, count in sorted(tools.items(), key=lambda x: x[1], reverse=True):
             report.write(f"{tool} - used {count} times\n")
+
+    # Get IP data
+    ip_addresses = get_all_ip_addresses(file_path, full_report=True)
+    
+    # Create stats.json with the counts
+    stats = {
+        "ip_count": len(ip_addresses),
+        "request_count": sum(ip_addresses.values()),
+        "error_count": len(get_response_codes(file_path, full_report=True)),
+        "asset_count": len(get_most_requested_files(file_path, full_report=True)),
+        "report_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    
+    with open("stats.json", "w") as f:
+        json.dump(stats, f)
+    
+    # Create ips.json with IPs and their request counts
+    ip_list = [{"ip": ip, "requests": count} for ip, count in ip_addresses.items()]
+    # Sort by request count in descending order
+    ip_list.sort(key=lambda x: x["requests"], reverse=True)
+    
+    with open("ips.json", "w") as f:
+        json.dump(ip_list, f)
 
 
 def analyse_log(window, text_label, scroll_area):
@@ -491,14 +370,14 @@ def update_api_token(token_input, text_label, scroll_area, status_label):
 
         # Update status label
         status_label.setText("✓")
-        status_label.setStyleSheet(f"color: {THEME_SUCCESS};")
+        status_label.setStyleSheet(TOKEN_STATUS_LABEL_STYLE(True))
     except Exception as e:
         print(f"Error storing API token: {e}")
         set_text_with_color(
             text_label, f"Error storing API token: {e}", "#ff0000", scroll_area
         )
         status_label.setText("✗")
-        status_label.setStyleSheet(f"color: {THEME_ERROR};")
+        status_label.setStyleSheet(TOKEN_STATUS_LABEL_STYLE(False))
 
 
 def get_token(token_input):
@@ -508,146 +387,28 @@ def get_token(token_input):
     webbrowser.open("https://ipinfo.io/account/token")
 
 
+def toggle_rate_limiting(rate_limit_switch, api_widgets):
+    is_checked = rate_limit_switch.isChecked()
+
+    # Show/hide all API-related widgets
+    for widget in api_widgets:
+        widget.setVisible(is_checked)
+
+
 def create_side_panel(window, text_label, scroll_area):
     side_panel = QFrame()
-    side_panel.setStyleSheet(
-        f"""
-        QFrame {{
-            background-color: {THEME_PANEL};
-            border-radius: 15px;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            padding: 10px;
-            margin: 10px 0;
-        }}
-        QCheckBox {{
-            color: {THEME_TEXT};
-            font-size: 14px;
-            padding: 5px;
-            spacing: 8px;
-        }}
-        QCheckBox::indicator {{
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            border: 2px solid {THEME_PRIMARY};
-        }}
-        QCheckBox::indicator:unchecked {{
-            background-color: transparent;
-        }}
-        QCheckBox::indicator:checked {{
-            background-color: {THEME_PRIMARY};
-            image: url(checkmark.png);
-        }}
-        QCheckBox::indicator:hover {{
-            border-color: {THEME_SECONDARY};
-        }}
-    """
-    )
-    side_panel.setFixedWidth(300)  # Slightly wider
-
-    # Create vertical layout for side panel
     side_layout = QVBoxLayout()
     side_layout.setSpacing(15)
     side_layout.setContentsMargins(15, 15, 15, 15)
 
-    # Add title to side panel
-    title = QLabel("API Token Settings")
-    title.setStyleSheet(
-        f"""
-        QLabel {{
-            color: {THEME_TEXT};
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }}
-    """
-    )
+    side_panel.setStyleSheet(SIDE_PANEL_STYLE)
+
+    title = QLabel("Analysis Settings")
+    title.setStyleSheet(SIDE_PANEL_TITLE_STYLE)
     title.setAlignment(Qt.AlignmentFlag.AlignCenter)
     side_layout.addWidget(title)
 
-    # Create token input with status indicator
-    token_container = QHBoxLayout()
-    token_input = QLineEdit()
-    token_input.setPlaceholderText("Enter API Token")
-    token_input.setStyleSheet(
-        f"""
-        QLineEdit {{
-            background-color: {THEME_PANEL};
-            color: {THEME_TEXT};
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 14px;
-        }}
-        QLineEdit:focus {{
-            border-color: {THEME_PRIMARY};
-        }}
-    """
-    )
-
-    # Check if token exists
-    token = get_api_token()
-    status_label = create_token_status_label(bool(token))
-
-    token_container.addWidget(token_input)
-    token_container.addWidget(status_label)
-    side_layout.addLayout(token_container)
-
-    # Add token-related buttons
-    get_token_button = QPushButton("Get API Token")
-    get_token_button.setStyleSheet(
-        f"""
-        QPushButton {{
-            background-color: transparent;
-            color: {THEME_PRIMARY};
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: underline;
-        }}
-        QPushButton:hover {{
-            color: {THEME_SECONDARY};
-        }}
-    """
-    )
-    get_token_button.setCursor(Qt.CursorShape.PointingHandCursor)
-    get_token_button.clicked.connect(lambda: get_token(token_input))
-    side_layout.addWidget(get_token_button)
-
-    submit_token_button = QPushButton("Submit API Token")
-    submit_token_button.setStyleSheet(
-        f"""
-        QPushButton {{
-            background-color: {THEME_PRIMARY};
-            color: {THEME_TEXT};
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
-        }}
-        QPushButton:hover {{
-            background-color: {THEME_SECONDARY};
-        }}
-    """
-    )
-
-    submit_token_button.clicked.connect(
-        lambda: update_api_token(token_input, text_label, scroll_area, status_label)
-    )
-    side_layout.addWidget(submit_token_button)
-
-    # Add a separator
-    separator = QFrame()
-    separator.setFrameShape(QFrame.Shape.HLine)
-    separator.setStyleSheet(f"background-color: rgba(59, 130, 246, 0.2);")
-    side_layout.addWidget(separator)
-
-    # Add spacing before checkboxes
-    side_layout.addStretch(1)  # Add stretch before checkboxes
-
-    # Create checkboxes for each analysis feature
+    # Create checkboxes for each analysis feature first
     analysis_options = {
         "response_codes": ("Response Codes Analysis", True),
         "ip_analysis": ("IP Address Analysis", True),
@@ -659,37 +420,81 @@ def create_side_panel(window, text_label, scroll_area):
     # Store checkboxes in window for access in analyse_log
     window.analysis_options = {}
 
-    # Create a function to handle checkbox state changes
-    def on_checkbox_change(state, key):
-        print(f"{key} analysis {'enabled' if state else 'disabled'}")
-
     for key, (label, default_state) in analysis_options.items():
         checkbox = QCheckBox(label)
         checkbox.setChecked(default_state)
-        checkbox.stateChanged.connect(lambda state, k=key: on_checkbox_change(state, k))
+        checkbox.setStyleSheet(CHECKBOX_STYLE)
         side_layout.addWidget(checkbox)
         window.analysis_options[key] = checkbox
 
-    # Add spacing after checkboxes
-    side_layout.addStretch(1)  # Add stretch after checkboxes
+    separator = QFrame()
+    separator.setFrameShape(QFrame.Shape.HLine)
+    separator.setStyleSheet(SEPARATOR_STYLE)
+    side_layout.addWidget(separator)
+
+    rate_limit_switch = QCheckBox("I got rate limited")
+    rate_limit_switch.setChecked(False)
+    rate_limit_switch.setStyleSheet(CHECKBOX_STYLE)
+    side_layout.addWidget(rate_limit_switch)
+
+    # Create API token widgets
+    api_widget_container = QWidget()
+    api_layout = QVBoxLayout(api_widget_container)
+    api_layout.setContentsMargins(0, 0, 0, 0)
+    api_layout.setSpacing(10)
+
+    # Create token input with status in a horizontal layout
+    token_container = QHBoxLayout()
+    token_container.setSpacing(0)  # Reduce spacing between input and status
+
+    token_input = QLineEdit()
+    token_input.setPlaceholderText("Enter API Token")
+    token_input.setStyleSheet(TOKEN_INPUT_STYLE)
+
+    # Add existing token if available
+    token = get_api_token()
+    if token:
+        token_input.setText(token)
+
+    status_label = create_token_status_label(bool(token))
+    token_container.addWidget(token_input, stretch=1)  # Give input field more space
+    token_container.addWidget(status_label)
+    api_layout.addLayout(token_container)
+
+    # Add token-related buttons
+    get_token_button = QPushButton("Get API Token")
+    get_token_button.setStyleSheet(GET_TOKEN_BUTTON_STYLE)
+    get_token_button.setCursor(Qt.CursorShape.PointingHandCursor)
+    get_token_button.clicked.connect(lambda: get_token(token_input))
+    api_layout.addWidget(get_token_button)
+
+    submit_token_button = QPushButton("Submit API Token")
+    submit_token_button.setStyleSheet(SUBMIT_TOKEN_BUTTON_STYLE)
+    submit_token_button.clicked.connect(
+        lambda: update_api_token(token_input, text_label, scroll_area, status_label)
+    )
+    api_layout.addWidget(submit_token_button)
+
+    # Initially hide the API widget container
+    api_widget_container.setVisible(False)
+    side_layout.addWidget(api_widget_container)
+
+    # Connect the rate limit switch to toggle API widgets visibility
+    rate_limit_switch.stateChanged.connect(
+        lambda: api_widget_container.setVisible(rate_limit_switch.isChecked())
+    )
+
+    # Add stretch to push everything to the top
+    side_layout.addStretch()
 
     side_panel.setLayout(side_layout)
     return side_panel, side_layout, token_input
 
 
 def create_token_status_label(has_token=False):
-    # Check keychain instead of file
     token = get_api_token()
     status_label = QLabel("✓" if token else "✗")
-    status_label.setStyleSheet(
-        f"""
-        QLabel {{
-            color: {THEME_SUCCESS if token else THEME_ERROR};
-            font-size: 18px;
-            font-weight: bold;
-        }}
-    """
-    )
+    status_label.setStyleSheet(TOKEN_STATUS_LABEL_STYLE(bool(token)))
     return status_label
 
 
