@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 import re
 import time
+import keyring
+import getpass
 
 # Colours
 THEME_PRIMARY = "#3b82f6"  # Brighter blue
@@ -18,8 +20,16 @@ THEME_WARNING = "#f59e0b"  # Brighter orange
 # Functions to analyse log files
 from utils import get_response_codes, get_all_ip_addresses, get_most_requested_files, get_tools_used, get_peak_traffic_times
 
-# Global variable to store the API token
-api_token = ""  # Default token
+# Constants for keyring
+KEYRING_SERVICE = "LogAnalyser"
+KEYRING_USERNAME = getpass.getuser()  # Uses system username
+
+# Replace the global api_token variable with getter/setter functions
+def get_api_token():
+    return keyring.get_password(KEYRING_SERVICE, KEYRING_USERNAME) or ""
+
+def set_api_token(token):
+    keyring.set_password(KEYRING_SERVICE, KEYRING_USERNAME, token)
 
 def create_app():
     return QApplication(sys.argv)
@@ -64,12 +74,29 @@ def create_heading():
         }}
     """)
     description.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+    # Create uploaded file label
+    global uploaded_file_label
+    uploaded_file_label = QLabel("No file uploaded")
+    uploaded_file_label.setStyleSheet(f"""
+        QLabel {{
+            color: {THEME_TEXT}aa;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin-bottom: 10px;
+            margin-left: -3px;
+        }}
+    """)
+    uploaded_file_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+    
+
     
     # Add to container
     heading_container_widget = QWidget()
     heading_container_widget.setLayout(heading_container)
     heading_container.addWidget(heading)
     heading_container.addWidget(description)
+    heading_container.addWidget(uploaded_file_label)
     
     return heading_container_widget
 
@@ -233,8 +260,8 @@ def upload_file(window, text_label, upload_button, analyse_button, button_style_
         "Log Files (*.log);;Text Files (*.txt);;All Files (*.*)"
     )
     if file_path:
-
-        if api_token == "":
+        token = get_api_token()
+        if not token:
             set_text_with_color(text_label, "Please enter an API token", "#ff0000", scroll_area)
             return
 
@@ -245,6 +272,9 @@ def upload_file(window, text_label, upload_button, analyse_button, button_style_
         analyse_button.setStyleSheet(button_style_primary)
         upload_button.setStyleSheet(button_style_success)
 
+        # Update uploaded file label
+        uploaded_file_label.setText(f"Uploaded file: {filename}")
+        uploaded_file_label.setStyleSheet(f"color: {THEME_TEXT};")
 
 def generate_report(file_path):
     with open("report.txt", "w") as report:
@@ -320,23 +350,29 @@ def analyse_log(window, text_label, scroll_area):
         set_text_with_color(text_label, "\nCheck out the full report located at report.txt", "#00ff00", scroll_area)
         generate_report(window.selected_file)
 
+def update_api_token(token_input, text_label, scroll_area, status_label):
+    token = token_input.text()
+    try:
+        # Store in keychain
+        set_api_token(token)
+        print(f"API token updated successfully")
+        set_text_with_color(text_label, "API token updated successfully", "#00ff00", scroll_area)
 
-def update_api_token(token_input, text_label, scroll_area):
-    global api_token
-    api_token = token_input.text()
-    print(f"API token updated to: {api_token}")
-    set_text_with_color(text_label, f"API token updated to: {api_token}", "#00ff00", scroll_area)
-
-    # save to file
-    with open("api_token.txt", "w") as file:
-        file.write(api_token)
+        # Update status label
+        status_label.setText("✓")
+        status_label.setStyleSheet(f"color: {THEME_SUCCESS};")
+    except Exception as e:
+        print(f"Error storing API token: {e}")
+        set_text_with_color(text_label, f"Error storing API token: {e}", "#ff0000", scroll_area)
+        status_label.setText("✗")
+        status_label.setStyleSheet(f"color: {THEME_ERROR};")
 
 def get_token(token_input):
     # take user to https://ipinfo.io/account/token
     import webbrowser
     webbrowser.open("https://ipinfo.io/account/token")
 
-def create_side_panel(window):
+def create_side_panel(window, text_label, scroll_area):
     side_panel = QFrame()
     side_panel.setStyleSheet(f"""
         QFrame {{
@@ -408,12 +444,8 @@ def create_side_panel(window):
     """)
     
     # Check if token exists
-    if Path("api_token.txt").exists() and Path("api_token.txt").stat().st_size > 0:
-        has_token = True
-    else:
-        has_token = False
-
-    status_label = create_token_status_label(has_token)
+    token = get_api_token()
+    status_label = create_token_status_label(bool(token))
     
     token_container.addWidget(token_input)
     token_container.addWidget(status_label)
@@ -454,7 +486,8 @@ def create_side_panel(window):
             background-color: {THEME_SECONDARY};
         }}
     """)
-    submit_token_button.clicked.connect(lambda: update_token_with_status(token_input, text_label, scroll_area))
+    
+    submit_token_button.clicked.connect(lambda: update_api_token(token_input, text_label, scroll_area, status_label))
     side_layout.addWidget(submit_token_button)
     
     # Add a separator
@@ -496,15 +529,40 @@ def create_side_panel(window):
     return side_panel, side_layout, token_input
 
 def create_token_status_label(has_token=False):
-    status_label = QLabel("✓" if has_token else "✗")
+    # Check keychain instead of file
+    token = get_api_token()
+    status_label = QLabel("✓" if token else "✗")
     status_label.setStyleSheet(f"""
         QLabel {{
-            color: {THEME_SUCCESS if has_token else THEME_ERROR};
+            color: {THEME_SUCCESS if token else THEME_ERROR};
             font-size: 18px;
             font-weight: bold;
         }}
     """)
     return status_label
+
+def safe_get_api_token():
+    try:
+        return get_api_token()
+    except Exception as e:
+        print(f"Error accessing keychain: {e}")
+        return ""
+
+def safe_set_api_token(token):
+    try:
+        set_api_token(token)
+        return True
+    except Exception as e:
+        print(f"Error storing in keychain: {e}")
+        return False
+
+def clear_api_token():
+    try:
+        keyring.delete_password(KEYRING_SERVICE, KEYRING_USERNAME)
+        return True
+    except Exception as e:
+        print(f"Error clearing token: {e}")
+        return False
 
 def main():
     app = create_app()
@@ -551,7 +609,7 @@ def main():
     content_layout.addLayout(button_layout)
     
     # Create side panel (right side)
-    side_panel, side_layout, token_input = create_side_panel(window)
+    side_panel, side_layout, token_input = create_side_panel(window, text_label, scroll_area)
     
     # Add stretch to push everything to the top
     side_layout.addStretch()
@@ -561,11 +619,9 @@ def main():
     main_layout.addWidget(side_panel)
     
     # Load existing token
-    global api_token
-    if Path("api_token.txt").exists():
-        with open("api_token.txt", "r") as file:
-            api_token = file.read().strip()
-            token_input.setText(api_token)
+    token = get_api_token()
+    if token:
+        token_input.setText(token)
     
     # Update main layout margins
     main_layout.setSpacing(20)

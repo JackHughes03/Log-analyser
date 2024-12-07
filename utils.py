@@ -39,8 +39,6 @@ def get_response_codes(logfilepath, text_label=None, scroll_area=None, set_text_
 
 def get_country_and_isp(ip):
     try:
-        # Add delay between requests to avoid rate limiting
-        time.sleep(0.1)  # 100ms delay
         
         response = requests.get(f'http://ipinfo.io/{ip}?token=4ee37a1361c69b', timeout=5)
         
