@@ -1,3 +1,10 @@
+import os
+import sys
+import json
+import shutil
+import webbrowser
+import traceback
+from datetime import datetime
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -19,8 +26,7 @@ import re
 import time
 import keyring
 import getpass
-import json
-from datetime import datetime
+
 # Import styles
 from styles import *
 
@@ -211,63 +217,97 @@ def upload_file(
         uploaded_file_label.setStyleSheet(f"color: {THEME_TEXT};")
 
 
-def generate_report(file_path):
-    # Get data for all sections
-    ip_addresses = get_all_ip_addresses(file_path, full_report=True)
-    response_codes = get_response_codes(file_path, full_report=True)
-    requested_files = get_most_requested_files(file_path, full_report=True)
-    tools_used = get_tools_used(file_path, full_report=True)
-    traffic_data = get_peak_traffic_times(file_path, full_report=True)
-    
-    # Create stats.json with the counts
-    stats = {
-        "ip_count": len(ip_addresses),
-        "request_count": sum(ip_addresses.values()),
-        "error_count": len(response_codes),
-        "asset_count": len(requested_files),
-        "report_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    }
-    
-    with open("stats.json", "w") as f:
-        json.dump(stats, f)
-    
-    # Create ips.json
-    ip_list = [{"ip": ip, "requests": count} for ip, count in ip_addresses.items()]
-    ip_list.sort(key=lambda x: x["requests"], reverse=True)
-    with open("ips.json", "w") as f:
-        json.dump(ip_list, f)
-    
-    # Create codes.json
-    codes_list = [{"code": code, "count": count} for code, count in response_codes.items()]
-    codes_list.sort(key=lambda x: x["count"], reverse=True)
-    with open("codes.json", "w") as f:
-        json.dump(codes_list, f)
-    
-    # Create files.json
-    files_list = [{"file": file, "code": code, "count": count} 
-                  for (file, code), count in requested_files.items()]
-    files_list.sort(key=lambda x: x["count"], reverse=True)
-    with open("files.json", "w") as f:
-        json.dump(files_list, f)
-    
-    # Create tools.json
-    tools_list = [{"tool": tool, "count": count} for tool, count in tools_used.items()]
-    tools_list.sort(key=lambda x: x["count"], reverse=True)
-    with open("tools.json", "w") as f:
-        json.dump(tools_list, f)
-    
-    # Create traffic.json
-    if isinstance(traffic_data, dict) and "detailed" in traffic_data:
-        # If traffic_data contains both detailed and hourly data
-        traffic_list = [{"time": time, "count": count} 
-                       for time, count in traffic_data["detailed"].items()]
-    else:
-        # If traffic_data is just a simple dictionary
-        traffic_list = [{"time": time, "count": count} 
-                       for time, count in traffic_data.items()]
-    traffic_list.sort(key=lambda x: x["count"], reverse=True)
-    with open("traffic.json", "w") as f:
-        json.dump(traffic_list, f)
+def generate_report(file_path, selected_features=None):
+    try:
+        # Default to all features if none specified
+        if selected_features is None:
+            selected_features = [
+                'ip_addresses',
+                'response_codes',
+                'requested_files',
+                'tools_used',
+                'traffic_analysis'
+            ]
+        
+        # Get base directory
+        if getattr(sys, 'frozen', False):
+            base_dir = sys._MEIPASS
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Create output directory
+        output_dir = os.path.join(os.path.dirname(file_path), 'report')
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Get all the data
+        ip_addresses = get_all_ip_addresses(file_path, full_report=True)
+        response_codes = get_response_codes(file_path, full_report=True)
+        requested_files = get_most_requested_files(file_path, full_report=True)
+        tools_used = get_tools_used(file_path, full_report=True)
+        traffic_data = get_peak_traffic_times(file_path, full_report=True)
+        
+        # Create the JSON data structure
+        json_data = {
+            'stats': {
+                "report_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "ip_count": len(ip_addresses),
+                "request_count": sum(ip_addresses.values()),
+                "error_count": len(response_codes),
+                "asset_count": len(requested_files),
+            }
+        }
+        
+        # Only include selected features
+        if 'ip_addresses' in selected_features:
+            json_data['ips'] = [{"ip": ip, "requests": count} for ip, count in ip_addresses.items()]
+        
+        if 'response_codes' in selected_features:
+            json_data['codes'] = [{"code": code, "count": count} for code, count in response_codes.items()]
+        
+        if 'requested_files' in selected_features:
+            json_data['files'] = [{"file": file, "code": code, "count": count} 
+                                for (file, code), count in requested_files.items()]
+        
+        if 'tools_used' in selected_features:
+            json_data['tools'] = [{"tool": tool, "count": count} for tool, count in tools_used.items()]
+        
+        if 'traffic_analysis' in selected_features:
+            json_data['traffic'] = [{"time": time, "count": count} 
+                                  for time, count in (traffic_data["detailed"].items() if isinstance(traffic_data, dict) and "detailed" in traffic_data else traffic_data.items())]
+        
+        # Read the template
+        template_path = os.path.join(base_dir, 'report.html')
+        with open(template_path, 'r') as f:
+            html_content = f.read()
+            
+        # Create JavaScript data initialization
+        js_data = []
+        for key in ['stats', 'ips', 'codes', 'files', 'tools', 'traffic']:
+            if key in json_data:
+                js_data.append(f"const {key.upper()}_JSON_DATA = {json.dumps(json_data[key])};")
+            else:
+                js_data.append(f"const {key.upper()}_JSON_DATA = [];")
+        
+        # Insert JSON data into HTML
+        json_script = f"""
+        <script>
+            {'\n            '.join(js_data)}
+        </script>
+        </head>
+        """
+        html_content = html_content.replace('</head>', json_script)
+        
+        # Write the modified HTML file
+        report_path = os.path.join(output_dir, 'report.html')
+        with open(report_path, 'w') as f:
+            f.write(html_content)
+            
+        print(f"Report generated at: {report_path}")
+        webbrowser.open(f'file://{report_path}')
+        
+    except Exception as e:
+        print(f"Error generating report: {str(e)}")
+        traceback.print_exc()
 
 
 def analyse_log(window, text_label, scroll_area):

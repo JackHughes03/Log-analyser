@@ -171,4 +171,4 @@ cython_debug/
 *.txt
 
 # Exclude myenv folder
-myenv/
+myenv

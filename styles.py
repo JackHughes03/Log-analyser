@@ -36,7 +36,7 @@ UPLOADED_FILE_LABEL_STYLE = f"""
         font-size: 14px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         margin-bottom: 10px;
-        margin-left: -3px;
+        margin-left: 0px;
     }}
 """
 
@@ -236,3 +236,19 @@ TOKEN_STATUS_LABEL_STYLE = (
 )
 
 SEPARATOR_STYLE = "background-color: rgba(59, 130, 246, 0.2);"
+
+SETTINGS_STYLE = """
+    QFrame {
+        background-color: transparent;
+        border-radius: 8px;
+        padding: 16px;
+    }
+"""
+
+PANEL_STYLE = """
+    QFrame {
+        background-color: transparent;
+        border-radius: 8px;
+        padding: 16px;
+    }
+"""
