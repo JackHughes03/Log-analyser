@@ -56,36 +56,3 @@ No additional requirements for the pre-built releases.
 3. Enter your API token in the application
 4. Upload a log file
 5. Click "Analyse" to start processing
-
-## Features in Detail
-
-### Response Codes Analysis
-- Track HTTP response codes distribution
-- Identify common error codes
-- Monitor success rates
-
-### IP Analysis
-- Analyse visitor IPs with country and ISP information
-- Track frequent visitors
-- Identify potential security issues
-
-### File Request Analysis
-- Monitor most requested resources
-- Track access patterns
-- Identify popular content
-
-### Tools Analysis
-- Identify user agents and tools
-- Track browser usage
-- Monitor bot activity
-
-### Traffic Analysis
-- View peak traffic hours (24-hour format)
-- Compare traffic across different periods:
-  - Morning (6AM-11AM)
-  - Afternoon (12PM-5PM)
-  - Evening (6PM-11PM)
-  - Night (12AM-5AM)
-- Calculate average requests per hour
-- Identify busiest periods
-- Track traffic patterns and trends
