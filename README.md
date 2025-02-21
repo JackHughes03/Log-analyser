@@ -6,10 +6,10 @@ A modern desktop application for analysing web server log files.
 
 ### Option 1: Download Release
 
-1. Go to the [Releases]([https://github.com/yourusername/log-analyser/releases](https://github.com/JackHughes03/Log-analyser/releases)) page
-2. Download the latest version for your platform:
-   - `LogAnalyser-Mac.dmg` for MacOS
-3. Run the installer
+1. Go to the [Releases]([https://github.com/yourusername/log-analyser/releases](https://github.com/JackHughes03/Log-analyser/releases) page
+2. Download the zip
+3. Install requirements
+4. Run gui.py
 
 ### Option 2: Install from Source
 
@@ -17,8 +17,8 @@ A modern desktop application for analysing web server log files.
 # Clone the repository
 git clone https://github.com/yourusername/log-analyser.git
 
-# Install dependencies
-pip install PySide6 requests keyring
+# Install dependencies in requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Features
