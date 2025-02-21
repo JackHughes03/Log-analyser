@@ -1,6 +1,6 @@
 # Log Analyser
 
-A modern desktop application for analysing web server log files.
+A modern mac software for analysing server log files.
 
 ## Quick Start
 
