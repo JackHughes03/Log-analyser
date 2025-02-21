@@ -6,7 +6,7 @@ A modern desktop application for analysing web server log files.
 
 ### Option 1: Download Release
 
-1. Go to the [Releases]([https://github.com/yourusername/log-analyser/releases](https://github.com/JackHughes03/Log-analyser/releases) page
+1. Go to the [Releases](https://github.com/JackHughes03/Log-analyser/releases) page
 2. Download the zip
 3. Install requirements
 4. Run gui.py
@@ -15,7 +15,7 @@ A modern desktop application for analysing web server log files.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/log-analyser.git
+git clone https://github.com/JackHughes03/Log-analyser.git
 
 # Install dependencies in requirements.txt
 pip install -r requirements.txt
